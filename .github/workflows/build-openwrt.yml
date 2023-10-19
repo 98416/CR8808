@@ -25,11 +25,12 @@ env:
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: cr8808.config
   DIY_SH: cr8808.sh
+  DIY_P2_SH: diy-part2.sh
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  # UPLOAD_COWTRANSFER: false
-  # UPLOAD_WETRANSFER: false
-  UPLOAD_RELEASE: false
+  UPLOAD_COWTRANSFER: false
+  UPLOAD_WETRANSFER: false
+  UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
 
 jobs:
@@ -65,9 +66,11 @@ jobs:
     - name: Load custom feeds
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
         cd openwrt
         # echo "src-git helloworld https://github.com/fw876/helloworld.git" >> ./feeds.conf.default
-
+        $GITHUB_WORKSPACE/$DIY_P1_SH
+	
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
 
@@ -79,8 +82,10 @@ jobs:
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_SH
+	chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_SH
+	$GITHUB_WORKSPACE/$DIY_P2_SH
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
